@@ -58,6 +58,9 @@ impl Component for CardDetailModel {
             gtk::Separator {},
 
             gtk::ScrolledWindow {
+                set_vexpand: true,
+                inline_css: "background: #fff;",
+
                 #[name = "drawing_area"]
                 gtk::DrawingArea {
                     set_content_width: 800,
