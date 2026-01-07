@@ -9,6 +9,11 @@ pub struct CardModel {
     pub path: Rc<Path>,
 }
 
+#[derive(Debug)]
+pub enum CardOutput {
+    RepoSelected,
+}
+
 pub struct Card {
     path: Rc<Path>,
     status_digest: endringer::types::StatusDigest,
@@ -18,7 +23,7 @@ pub struct Card {
 impl FactoryComponent for Card {
     type Init = CardModel;
     type Input = ();
-    type Output = ();
+    type Output = CardOutput;
     type CommandOutput = ();
     type ParentWidget = gtk::Box; // 親がどのウィジェットか指定
 
@@ -34,15 +39,19 @@ impl FactoryComponent for Card {
                 set_margin_all: 10,
 
                 gtk::Label {
+                    set_selectable: true,
                     set_label: &self.status_digest.repo_name,
                 },
                 gtk::Label {
+                    set_selectable: true,
                     set_label: &self.status_digest.current_branch,
                 },
                 gtk::Label {
+                    set_selectable: true,
                     set_label: &self.status_digest.last_commit_summary,
                 },
                 gtk::Label {
+                    set_selectable: true,
                     set_label: &({
                         let duration_since_epoch = &self.status_digest.last_commit_time
                             .duration_since(UNIX_EPOCH)
@@ -58,6 +67,11 @@ impl FactoryComponent for Card {
                         let x = datetime.to_string();
                         x
                     }),
+                },
+
+                gtk::Button {
+                    set_label: "選択",
+                    connect_clicked => sender.output(CardOutput::RepoSelected).unwrap(),
                 },
             }
         }

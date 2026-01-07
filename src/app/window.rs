@@ -5,17 +5,24 @@ use relm4::{
     SimpleComponent, gtk,
 };
 
-use crate::app::views::dashboard::DashboardModel;
+use crate::app::components::common::dialog::{DialogInput, DialogModel, DialogOutput};
+use crate::app::views::dashboard::{DashboardModel, DashboardOutput};
 
 pub struct AppModel {
     dashboard: Controller<DashboardModel>,
+    dialog: Controller<DialogModel>,
+}
+
+#[derive(Debug)]
+pub enum AppInput {
+    RepoSelected,
 }
 
 #[relm4::component(pub)]
 impl SimpleComponent for AppModel {
     type Init = u8;
 
-    type Input = ();
+    type Input = AppInput;
     type Output = ();
 
     view! {
@@ -38,11 +45,24 @@ impl SimpleComponent for AppModel {
     fn init(
         _init: Self::Init,
         root: Self::Root,
-        _sender: ComponentSender<Self>,
+        sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let dashboard = DashboardModel::builder().launch(()).detach();
+        let dashboard =
+            DashboardModel::builder()
+                .launch(())
+                .forward(sender.input_sender(), |msg| match msg {
+                    DashboardOutput::RepoSelected => AppInput::RepoSelected,
+                });
 
-        let model = AppModel { dashboard };
+        let dialog = DialogModel::builder()
+            .transient_for(&root)
+            .launch(true)
+            // .forward(sender.input_sender(), |msg| match msg {
+            //     _ => (),
+            // })
+            .detach();
+
+        let model = AppModel { dashboard, dialog };
 
         // Insert the macro code generation here
         let dashboard_widget = model.dashboard.widget();
@@ -51,5 +71,11 @@ impl SimpleComponent for AppModel {
         ComponentParts { model, widgets }
     }
 
-    // fn update(&mut self, msg: Self::Input, _sender: ComponentSender<Self>) { }
+    fn update(&mut self, msg: Self::Input, _sender: ComponentSender<Self>) {
+        match msg {
+            AppInput::RepoSelected => {
+                self.dialog.sender().send(DialogInput::Show).unwrap();
+            }
+        }
+    }
 }
