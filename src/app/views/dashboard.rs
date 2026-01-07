@@ -1,4 +1,5 @@
 use std::{
+    fs,
     path::{Path, PathBuf},
     rc::Rc,
 };
@@ -94,13 +95,32 @@ impl Component for DashboardModel {
     fn update(&mut self, msg: Self::Input, _sender: ComponentSender<Self>, _root: &Self::Root) {
         match msg {
             DashboardInput::RootSelected(path_buf) => {
-                println!("xxxxxxxx {:?}", path_buf);
+                let repos = match fs::read_dir(&path_buf) {
+                    Ok(entries) => {
+                        entries
+                            .flatten()
+                            .filter(|entry| {
+                                let path = entry.path();
+
+                                // 2. ディレクトリかどうかを確認
+                                if path.is_dir() {
+                                    // 3. その中に ".git" フォルダが存在するか確認
+                                    if path.join(".git").is_dir() {
+                                        return true;
+                                    }
+                                }
+                                false
+                            })
+                            .collect()
+                    }
+                    Err(_) => vec![],
+                };
 
                 let mut guard = self.cards.guard();
                 guard.clear();
-                for _i in 1..=3 {
+                for repo in repos {
                     guard.push_back(CardModel {
-                        path: Rc::from(Path::new(".")),
+                        path: Rc::from(repo.path()),
                     });
                 }
             }
