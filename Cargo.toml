@@ -34,4 +34,4 @@ chrono = { version = "0", default-features = false, features = ["clock"] }
 gix = "0"
 relm4 = "0"
 relm4-components = "0"
-petgraph = "0.8.3"
+petgraph = "0"
