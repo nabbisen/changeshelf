@@ -10,7 +10,7 @@ use relm4::prelude::*;
 
 use crate::app::components::dashboard::{
     card::{Card, CardModel, CardOutput},
-    card_detail::{CardDetailModel, CardDetailOutput},
+    card_detail::{CardDetailInput, CardDetailModel, CardDetailOutput},
 };
 
 pub struct DashboardModel {
@@ -124,7 +124,13 @@ impl Component for DashboardModel {
                     });
                 }
             }
-            DashboardInput::RepoSelected(_path_buf) => self.card_detail_visible = true,
+            DashboardInput::RepoSelected(path_buf) => {
+                self.card_detail
+                    .sender()
+                    .send(CardDetailInput::RepoSelected(path_buf))
+                    .unwrap();
+                self.card_detail_visible = true
+            }
             DashboardInput::CloseCardDetail => self.card_detail_visible = false,
         }
     }
