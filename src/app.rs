@@ -1,12 +1,12 @@
-use relm4::RelmApp;
-
-use crate::app::window::AppModel;
-
-mod components;
-mod views;
+pub mod components;
+pub mod views;
 mod window;
 
-pub fn start() {
-    let app = RelmApp::new("relm4.test.simple_manual");
-    app.run::<AppModel>(0);
+pub fn start() -> std::result::Result<(), iced::Error> {
+    iced::application(
+        window::Window::new,
+        window::Window::update,
+        window::Window::view,
+    )
+    .run()
 }
