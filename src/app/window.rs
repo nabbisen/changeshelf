@@ -28,7 +28,7 @@ impl Window {
         match message {
             Message::Search(sub_msg) => {
                 // 子の update を呼び出す
-                self.dashboard.update(sub_msg);
+                let _ = self.dashboard.update(sub_msg);
             }
         }
     }

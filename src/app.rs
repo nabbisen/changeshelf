@@ -1,4 +1,5 @@
 pub mod components;
+mod utils;
 pub mod views;
 mod window;
 
